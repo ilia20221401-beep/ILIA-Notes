@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">ILIA Notes</string>
+    <string name="new_note">یادداشت جدید</string>
+    <string name="edit_note">ویرایش یادداشت</string>
+    <string name="search_placeholder">جستجو در عنوان یا متن...</string>
+    <string name="no_notes_title">هیچ یادداشتی وجود ندارد</string>
+    <string name="no_notes_subtitle">روی دکمه + بزنید و اولین ایده یا یادداشت خود را ثبت کنید</string>
+    <string name="no_search_results">هیچ نتیجه‌ای مطابق جستجو یافت نشد</string>
+    <string name="title_hint">عنوان یادداشت</string>
+    <string name="content_hint">متن یادداشت را اینجا بنویسید...</string>
+    <string name="save">ذخیره</string>
+    <string name="cancel">انصراف</string>
+    <string name="delete">حذف</string>
+    <string name="edit">ویرایش</string>
+    <string name="delete_dialog_title">حذف یادداشت</string>
+    <string name="delete_dialog_message">آیا از حذف این یادداشت مطمئن هستید؟ این عملیات قابل بازگردانی فوری است.</string>
+    <string name="note_deleted">یادداشت با موفقیت حذف شد</string>
+    <string name="undo">بازگردانی</string>
+    <string name="pin">سنجاق کردن</string>
+    <string name="unpin">برداشتن سنجاق</string>
+    <string name="share">اشتراک‌گذاری</string>
+    <string name="category_all">همه</string>
+    <string name="category_personal">شخصی</string>
+    <string name="category_work">کاری</string>
+    <string name="category_idea">ایده‌ها</string>
+    <string name="category_study">مطالعه</string>
+    <string name="category_urgent">فوری و مهم</string>
+    <string name="select_category">انتخاب دسته‌بندی</string>
+    <string name="select_color">انتخاب رنگ تم</string>
+</resources>

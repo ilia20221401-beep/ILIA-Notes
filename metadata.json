@@ -1,0 +1,6 @@
+{
+  "name": "ILIA Notes",
+  "description": "برنامه یادداشت‌برداری سریع، مدرن و زیبا با قابلیت ذخیره‌سازی محلی دائم Room",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
