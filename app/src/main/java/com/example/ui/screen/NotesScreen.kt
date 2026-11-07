@@ -24,12 +24,12 @@ import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.NoteAdd
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Brush
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.GridView
-import androidx.compose.material.icons.filled.NoteAdd
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ViewAgenda
 import androidx.compose.material3.Card
@@ -100,12 +100,12 @@ fun NotesScreen(
                 title = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Surface(
                             shape = RoundedCornerShape(10.dp),
                             color = MaterialTheme.colorScheme.primaryContainer,
-                            modifier = Modifier.size(36.dp)
+                            modifier = Modifier.size(38.dp)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
@@ -123,7 +123,7 @@ fun NotesScreen(
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = "${uiState.notes.size} از ${uiState.totalCount} یادداشت",
+                                text = "${uiState.notes.size} of ${uiState.totalCount} notes",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -138,7 +138,7 @@ fun NotesScreen(
                     ) {
                         Icon(
                             imageVector = if (uiState.isGridView) Icons.Filled.ViewAgenda else Icons.Filled.GridView,
-                            contentDescription = if (uiState.isGridView) "نمایش ستونی" else "نمایش شبکه‌ای"
+                            contentDescription = if (uiState.isGridView) "Switch to list view" else "Switch to grid view"
                         )
                     }
                 },
@@ -219,7 +219,7 @@ fun NotesScreen(
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Filled.Search,
-                            contentDescription = "جستجو",
+                            contentDescription = "Search",
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     },
@@ -231,7 +231,7 @@ fun NotesScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Filled.Clear,
-                                    contentDescription = "پاک کردن متن جستجو"
+                                    contentDescription = "Clear search query"
                                 )
                             }
                         }
@@ -286,7 +286,7 @@ fun NotesScreen(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
-                                    imageVector = if (uiState.searchQuery.isNotEmpty()) Icons.Filled.Search else Icons.Filled.NoteAdd,
+                                    imageVector = if (uiState.searchQuery.isNotEmpty()) Icons.Filled.Search else Icons.AutoMirrored.Filled.NoteAdd,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(32.dp)
@@ -310,7 +310,7 @@ fun NotesScreen(
 
                             Text(
                                 text = if (uiState.searchQuery.isNotEmpty()) {
-                                    "عبارت دیگری را جستجو کنید یا دسته‌بندی را تغییر دهید"
+                                    stringResource(R.string.search_empty_hint)
                                 } else {
                                     stringResource(R.string.no_notes_subtitle)
                                 },
@@ -384,8 +384,8 @@ fun NotesScreen(
                 viewModel.confirmDeleteNote { deletedNote ->
                     scope.launch {
                         val result = snackbarHostState.showSnackbar(
-                            message = "یادداشت «${deletedNote.title.ifBlank { "بدون عنوان" }}» حذف شد",
-                            actionLabel = "بازگردانی",
+                            message = "Note \"${deletedNote.title.ifBlank { "Untitled" }}\" deleted",
+                            actionLabel = "Undo",
                             duration = SnackbarDuration.Short
                         )
                         if (result == SnackbarResult.ActionPerformed) {

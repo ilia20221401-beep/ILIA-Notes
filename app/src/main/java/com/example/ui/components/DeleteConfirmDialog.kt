@@ -23,7 +23,7 @@ fun DeleteConfirmDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    val noteTitle = if (note.title.isNotBlank()) "«${note.title}»" else "این یادداشت"
+    val noteTitle = if (note.title.isNotBlank()) "\"${note.title}\"" else "this note"
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -43,7 +43,7 @@ fun DeleteConfirmDialog(
         },
         text = {
             Text(
-                text = "آیا از حذف $noteTitle مطمئن هستید؟ شما می‌توانید پس از حذف تا چند ثانیه آن را بازگردانی نمایید.",
+                text = "Are you sure you want to delete $noteTitle? You can undo this action right after.",
                 style = MaterialTheme.typography.bodyMedium
             )
         },

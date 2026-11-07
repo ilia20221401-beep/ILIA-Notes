@@ -10,7 +10,7 @@ data class Note(
     val title: String,
     val content: String,
     val timestamp: Long = System.currentTimeMillis(),
-    val colorHex: Long = 0xFFFFFBEB, // Default warm amber
-    val category: String = "شخصی",
+    val colorHex: Long = 0xFFFFFFFF, // Default White
+    val category: String = "Personal",
     val isPinned: Boolean = false
 )

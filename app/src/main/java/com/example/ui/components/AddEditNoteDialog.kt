@@ -56,14 +56,24 @@ data class NoteColorOption(
     val hexValue: Long
 )
 
+// One pure white color, and richer, clearly darker and distinct colors
 val AvailableNoteColors = listOf(
-    NoteColorOption("کهربایی", 0xFFFFFBEB),
-    NoteColorOption("زمردی", 0xFFECFDF5),
-    NoteColorOption("آبی آسمانی", 0xFFF0F9FF),
-    NoteColorOption("اسطوخودوس", 0xFFFAF5FF),
-    NoteColorOption("مرجانی", 0xFFFFF1F2),
-    NoteColorOption("خاکستری مدرن", 0xFFF1F5F9)
+    NoteColorOption("White", 0xFFFFFFFF),
+    NoteColorOption("Amber", 0xFFFCD34D),
+    NoteColorOption("Emerald", 0xFF86EFAC),
+    NoteColorOption("Sky Blue", 0xFF7DD3FC),
+    NoteColorOption("Lavender", 0xFFC4B5FD),
+    NoteColorOption("Coral", 0xFFFDA4AF),
+    NoteColorOption("Dark Slate", 0xFF334155)
 )
+
+private fun isHexColorDark(hex: Long): Boolean {
+    val r = ((hex shr 16) and 0xFF)
+    val g = ((hex shr 8) and 0xFF)
+    val b = (hex and 0xFF)
+    val luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b
+    return luminance < 130
+}
 
 @Composable
 fun AddEditNoteDialog(
@@ -73,8 +83,8 @@ fun AddEditNoteDialog(
 ) {
     var title by remember { mutableStateOf(note?.title ?: "") }
     var content by remember { mutableStateOf(note?.content ?: "") }
-    var selectedCategory by remember { mutableStateOf(note?.category ?: "شخصی") }
-    var selectedColorHex by remember { mutableLongStateOf(note?.colorHex ?: 0xFFFFFBEB) }
+    var selectedCategory by remember { mutableStateOf(note?.category ?: "Personal") }
+    var selectedColorHex by remember { mutableLongStateOf(note?.colorHex ?: 0xFFFFFFFF) }
     var isPinned by remember { mutableStateOf(note?.isPinned ?: false) }
 
     val isEditing = note != null
@@ -107,7 +117,7 @@ fun AddEditNoteDialog(
                 // Color indicator dot
                 Box(
                     modifier = Modifier
-                        .size(24.dp)
+                        .size(26.dp)
                         .clip(CircleShape)
                         .background(Color(selectedColorHex))
                         .border(1.5.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
@@ -155,7 +165,7 @@ fun AddEditNoteDialog(
                     horizontalArrangement = Arrangement.End
                 ) {
                     Text(
-                        text = "$wordCount کلمه • $charCount نویسه",
+                        text = "$wordCount words • $charCount characters",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 11.sp
@@ -224,6 +234,7 @@ fun AddEditNoteDialog(
                 ) {
                     items(AvailableNoteColors) { colorOpt ->
                         val isSelected = selectedColorHex == colorOpt.hexValue
+                        val isDarkCircle = isHexColorDark(colorOpt.hexValue)
                         Box(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier
@@ -241,8 +252,8 @@ fun AddEditNoteDialog(
                             if (isSelected) {
                                 Icon(
                                     imageVector = Icons.Filled.Check,
-                                    contentDescription = "انتخاب شده",
-                                    tint = Color(0xFF1E293B),
+                                    contentDescription = "Selected",
+                                    tint = if (isDarkCircle) Color.White else Color(0xFF0F172A),
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
@@ -272,7 +283,7 @@ fun AddEditNoteDialog(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "سنجاق کردن در بالای لیست",
+                            text = stringResource(R.string.pin_to_top),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Medium
                         )

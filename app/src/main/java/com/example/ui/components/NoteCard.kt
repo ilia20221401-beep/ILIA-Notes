@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DeleteOutline
@@ -37,14 +36,24 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.R
 import com.example.data.model.Note
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+
+private fun isHexColorDark(hex: Long): Boolean {
+    val r = ((hex shr 16) and 0xFF)
+    val g = ((hex shr 8) and 0xFF)
+    val b = (hex and 0xFF)
+    val luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b
+    return luminance < 130
+}
 
 @Composable
 fun NoteCard(
@@ -56,34 +65,47 @@ fun NoteCard(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val isDark = isSystemInDarkTheme()
+    val isSystemDark = isSystemInDarkTheme()
+    val isCardDark = isHexColorDark(note.colorHex)
 
-    // Base note card background adjusted for light/dark theme
-    val cardColor = if (isDark) {
-        Color(note.colorHex).copy(alpha = 0.15f)
+    // Base card container color
+    val cardColor = if (isSystemDark) {
+        if (isCardDark) {
+            Color(note.colorHex)
+        } else if (note.colorHex == 0xFFFFFFFFL) {
+            Color(0xFF1E293B)
+        } else {
+            // Tinted for dark mode
+            Color(note.colorHex).copy(alpha = 0.25f)
+        }
     } else {
         Color(note.colorHex)
     }
 
-    val contentTextColor = if (isDark) {
-        Color(0xFFE2E8F0)
+    // Dynamic high-contrast text color based on card luminance
+    val contentTextColor = if (isSystemDark) {
+        if (isCardDark) Color(0xFFF8FAFC) else Color(0xFFF1F5F9)
     } else {
-        Color(0xFF1E293B)
+        if (isCardDark) Color(0xFFFFFFFF) else Color(0xFF0F172A)
     }
 
-    val subtleTextColor = if (isDark) {
-        Color(0xFF94A3B8)
+    val subtleTextColor = if (isSystemDark) {
+        if (isCardDark) Color(0xFFCBD5E1) else Color(0xFF94A3B8)
     } else {
-        Color(0xFF64748B)
+        if (isCardDark) Color(0xFFE2E8F0) else Color(0xFF475569)
     }
 
     val borderColor = if (note.isPinned) {
-        MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+        MaterialTheme.colorScheme.primary
     } else {
-        if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0)
+        if (note.colorHex == 0xFFFFFFFFL) {
+            if (isSystemDark) Color(0xFF334155) else Color(0xFFCBD5E1)
+        } else {
+            if (isSystemDark) Color(0xFF334155) else Color(note.colorHex).copy(alpha = 0.85f)
+        }
     }
 
-    val formattedDate = SimpleDateFormat("yyyy/MM/dd - HH:mm", Locale.getDefault())
+    val formattedDate = SimpleDateFormat("MMM dd, yyyy • HH:mm", Locale.ENGLISH)
         .format(Date(note.timestamp))
 
     Card(
@@ -114,17 +136,21 @@ fun NoteCard(
                 // Category Tag
                 Surface(
                     shape = RoundedCornerShape(8.dp),
-                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+                    color = if (isCardDark) {
+                        Color.Black.copy(alpha = 0.35f)
+                    } else {
+                        MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)
+                    },
                     modifier = Modifier.border(
                         0.5.dp,
-                        MaterialTheme.colorScheme.outlineVariant,
+                        if (isCardDark) Color.White.copy(alpha = 0.2f) else MaterialTheme.colorScheme.outlineVariant,
                         RoundedCornerShape(8.dp)
                     )
                 ) {
                     Text(
                         text = note.category,
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = if (isCardDark) Color(0xFFF1F5F9) else MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                     )
@@ -135,22 +161,22 @@ fun NoteCard(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .background(
-                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
+                                if (isCardDark) Color.Black.copy(alpha = 0.4f) else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f),
                                 RoundedCornerShape(12.dp)
                             )
                             .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Filled.PushPin,
-                            contentDescription = "سنجاق شده",
-                            tint = MaterialTheme.colorScheme.primary,
+                            contentDescription = stringResource(R.string.pin),
+                            tint = if (isCardDark) Color(0xFFFDE047) else MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(14.dp)
                         )
                         Spacer(modifier = Modifier.width(3.dp))
                         Text(
-                            text = "سنجاق",
+                            text = "Pinned",
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = if (isCardDark) Color(0xFFFDE047) else MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Bold,
                             fontSize = 10.sp
                         )
@@ -178,7 +204,7 @@ fun NoteCard(
                 Text(
                     text = note.content,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = contentTextColor.copy(alpha = 0.88f),
+                    color = contentTextColor.copy(alpha = 0.90f),
                     maxLines = 5,
                     overflow = TextOverflow.Ellipsis,
                     lineHeight = 20.sp
@@ -211,8 +237,10 @@ fun NoteCard(
                 ) {
                     Icon(
                         imageVector = if (note.isPinned) Icons.Filled.PushPin else Icons.Outlined.PushPin,
-                        contentDescription = if (note.isPinned) "برداشتن سنجاق" else "سنجاق کردن",
-                        tint = if (note.isPinned) MaterialTheme.colorScheme.primary else subtleTextColor,
+                        contentDescription = if (note.isPinned) stringResource(R.string.unpin) else stringResource(R.string.pin),
+                        tint = if (note.isPinned) {
+                            if (isCardDark) Color(0xFFFDE047) else MaterialTheme.colorScheme.primary
+                        } else subtleTextColor,
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -224,7 +252,7 @@ fun NoteCard(
                             type = "text/plain"
                             putExtra(
                                 Intent.EXTRA_SUBJECT,
-                                note.title.ifBlank { "یادداشت ILIA Notes" }
+                                note.title.ifBlank { "ILIA Notes" }
                             )
                             putExtra(
                                 Intent.EXTRA_TEXT,
@@ -235,7 +263,7 @@ fun NoteCard(
                             )
                         }
                         context.startActivity(
-                            Intent.createChooser(shareIntent, "اشتراک‌گذاری یادداشت")
+                            Intent.createChooser(shareIntent, "Share note")
                         )
                     },
                     modifier = Modifier
@@ -244,7 +272,7 @@ fun NoteCard(
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Share,
-                        contentDescription = "اشتراک‌گذاری",
+                        contentDescription = stringResource(R.string.share),
                         tint = subtleTextColor,
                         modifier = Modifier.size(18.dp)
                     )
@@ -259,7 +287,7 @@ fun NoteCard(
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Edit,
-                        contentDescription = "ویرایش یادداشت",
+                        contentDescription = stringResource(R.string.edit),
                         tint = subtleTextColor,
                         modifier = Modifier.size(18.dp)
                     )
@@ -274,8 +302,8 @@ fun NoteCard(
                 ) {
                     Icon(
                         imageVector = Icons.Filled.DeleteOutline,
-                        contentDescription = "حذف یادداشت",
-                        tint = MaterialTheme.colorScheme.error,
+                        contentDescription = stringResource(R.string.delete),
+                        tint = if (isCardDark) Color(0xFFF87171) else MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(18.dp)
                     )
                 }

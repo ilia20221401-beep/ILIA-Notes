@@ -15,14 +15,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.R
 
 val NoteCategoriesList = listOf(
-    "شخصی",
-    "کاری",
-    "ایده‌ها",
-    "مطالعه",
-    "فوری و مهم"
+    "Personal",
+    "Work",
+    "Ideas",
+    "Study",
+    "Urgent"
 )
 
 @Composable
@@ -42,7 +44,7 @@ fun CategoryFilterBar(
             FilterChip(
                 selected = isSelected,
                 onClick = { onCategorySelected(null) },
-                label = { Text("همه") },
+                label = { Text(stringResource(R.string.category_all)) },
                 leadingIcon = if (isSelected) {
                     {
                         Icon(

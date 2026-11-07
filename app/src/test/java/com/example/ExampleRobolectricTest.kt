@@ -40,15 +40,17 @@ class ExampleRobolectricTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val appName = context.getString(R.string.app_name)
         assertEquals("ILIA Notes", appName)
+        val credit = context.getString(R.string.designer_credit)
+        assertEquals("Designed and developed by ILIA SOFTWARE", credit)
     }
 
     @Test
     fun `insert and retrieve note from room database`() = runBlocking {
         val dao = db.noteDao()
         val note = Note(
-            title = "یادداشت تست",
-            content = "این یک یادداشت برای تست پایگاه داده روم است.",
-            category = "کاری",
+            title = "Test Note",
+            content = "This is a test note for Room database persistence.",
+            category = "Work",
             isPinned = true
         )
         val id = dao.insertNote(note)
@@ -56,7 +58,7 @@ class ExampleRobolectricTest {
 
         val notes = dao.getAllNotes().first()
         assertEquals(1, notes.size)
-        assertEquals("یادداشت تست", notes[0].title)
+        assertEquals("Test Note", notes[0].title)
         assertTrue(notes[0].isPinned)
 
         dao.deleteNoteById(id)
