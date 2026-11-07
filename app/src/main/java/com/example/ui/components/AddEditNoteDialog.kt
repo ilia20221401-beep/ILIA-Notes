@@ -67,14 +67,6 @@ val AvailableNoteColors = listOf(
     NoteColorOption("Dark Slate", 0xFF334155)
 )
 
-private fun isHexColorDark(hex: Long): Boolean {
-    val r = ((hex shr 16) and 0xFF)
-    val g = ((hex shr 8) and 0xFF)
-    val b = (hex and 0xFF)
-    val luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b
-    return luminance < 130
-}
-
 @Composable
 fun AddEditNoteDialog(
     note: Note?,
@@ -119,8 +111,8 @@ fun AddEditNoteDialog(
                     modifier = Modifier
                         .size(26.dp)
                         .clip(CircleShape)
-                        .background(Color(selectedColorHex))
-                        .border(1.5.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape)
+                        .background(Color(selectedColorHex.toInt()))
+                        .border(1.5.dp, Color(0xFF94A3B8), CircleShape)
                 )
             }
         },
@@ -238,12 +230,12 @@ fun AddEditNoteDialog(
                         Box(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier
-                                .size(38.dp)
+                                .size(40.dp)
                                 .clip(CircleShape)
-                                .background(Color(colorOpt.hexValue))
+                                .background(Color(colorOpt.hexValue.toInt()))
                                 .border(
-                                    width = if (isSelected) 2.5.dp else 1.dp,
-                                    color = if (isSelected) MaterialTheme.colorScheme.primary else Color(0xFF94A3B8),
+                                    width = if (isSelected) 3.dp else 1.5.dp,
+                                    color = if (isSelected) MaterialTheme.colorScheme.primary else Color(0xFFCBD5E1),
                                     shape = CircleShape
                                 )
                                 .clickable { selectedColorHex = colorOpt.hexValue }

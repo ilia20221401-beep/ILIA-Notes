@@ -47,7 +47,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-private fun isHexColorDark(hex: Long): Boolean {
+fun isHexColorDark(hex: Long): Boolean {
     val r = ((hex shr 16) and 0xFF)
     val g = ((hex shr 8) and 0xFF)
     val b = (hex and 0xFF)
@@ -65,43 +65,26 @@ fun NoteCard(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val isSystemDark = isSystemInDarkTheme()
     val isCardDark = isHexColorDark(note.colorHex)
 
-    // Base card container color
-    val cardColor = if (isSystemDark) {
-        if (isCardDark) {
-            Color(note.colorHex)
-        } else if (note.colorHex == 0xFFFFFFFFL) {
-            Color(0xFF1E293B)
-        } else {
-            // Tinted for dark mode
-            Color(note.colorHex).copy(alpha = 0.25f)
-        }
-    } else {
-        Color(note.colorHex)
-    }
+    // Using Color(hex.toInt()) guarantees 100% solid, fully-opaque color.
+    // 0xFFFFFFFF.toInt() produces pure, crisp solid white.
+    val cardColor = Color(note.colorHex.toInt())
 
-    // Dynamic high-contrast text color based on card luminance
-    val contentTextColor = if (isSystemDark) {
-        if (isCardDark) Color(0xFFF8FAFC) else Color(0xFFF1F5F9)
-    } else {
-        if (isCardDark) Color(0xFFFFFFFF) else Color(0xFF0F172A)
-    }
+    // High-contrast text colors based on card lightness
+    val contentTextColor = if (isCardDark) Color(0xFFFFFFFF) else Color(0xFF0F172A)
+    val subtleTextColor = if (isCardDark) Color(0xFFCBD5E1) else Color(0xFF475569)
 
-    val subtleTextColor = if (isSystemDark) {
-        if (isCardDark) Color(0xFFCBD5E1) else Color(0xFF94A3B8)
-    } else {
-        if (isCardDark) Color(0xFFE2E8F0) else Color(0xFF475569)
-    }
-
+    val isWhiteCard = (note.colorHex and 0xFFFFFFL) == 0xFFFFFFL
     val borderColor = if (note.isPinned) {
-        MaterialTheme.colorScheme.primary
+        if (isCardDark) Color(0xFFFDE047) else MaterialTheme.colorScheme.primary
     } else {
-        if (note.colorHex == 0xFFFFFFFFL) {
-            if (isSystemDark) Color(0xFF334155) else Color(0xFFCBD5E1)
+        if (isWhiteCard) {
+            Color(0xFFCBD5E1) // Crisp neat border for white card
+        } else if (isCardDark) {
+            Color(0xFF475569)
         } else {
-            if (isSystemDark) Color(0xFF334155) else Color(note.colorHex).copy(alpha = 0.85f)
+            cardColor.copy(alpha = 0.85f)
         }
     }
 
@@ -116,9 +99,9 @@ fun NoteCard(
             .testTag("note_card_${note.id}"),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = cardColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (note.isPinned) 3.dp else 1.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = if (note.isPinned) 4.dp else 2.dp),
         border = androidx.compose.foundation.BorderStroke(
-            width = if (note.isPinned) 1.5.dp else 1.dp,
+            width = if (note.isPinned) 2.dp else 1.dp,
             color = borderColor
         )
     ) {
@@ -138,20 +121,22 @@ fun NoteCard(
                     shape = RoundedCornerShape(8.dp),
                     color = if (isCardDark) {
                         Color.Black.copy(alpha = 0.35f)
+                    } else if (isWhiteCard) {
+                        Color(0xFFF1F5F9)
                     } else {
-                        MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)
+                        Color.White.copy(alpha = 0.75f)
                     },
                     modifier = Modifier.border(
                         0.5.dp,
-                        if (isCardDark) Color.White.copy(alpha = 0.2f) else MaterialTheme.colorScheme.outlineVariant,
+                        if (isCardDark) Color.White.copy(alpha = 0.2f) else Color(0xFFCBD5E1),
                         RoundedCornerShape(8.dp)
                     )
                 ) {
                     Text(
                         text = note.category,
                         style = MaterialTheme.typography.labelSmall,
-                        color = if (isCardDark) Color(0xFFF1F5F9) else MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontWeight = FontWeight.Medium,
+                        color = if (isCardDark) Color(0xFFF1F5F9) else Color(0xFF334155),
+                        fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                     )
                 }
@@ -161,7 +146,7 @@ fun NoteCard(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .background(
-                                if (isCardDark) Color.Black.copy(alpha = 0.4f) else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f),
+                                if (isCardDark) Color.Black.copy(alpha = 0.4f) else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.75f),
                                 RoundedCornerShape(12.dp)
                             )
                             .padding(horizontal = 6.dp, vertical = 2.dp)
