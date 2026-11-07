@@ -51,8 +51,11 @@ jobs:
           if [ -n "${{ secrets.KEYSTORE_BASE64 }}" ]; then
             echo "Using release keystore provided in GitHub Secrets..."
             echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > "$KEYSTORE_FILE"
+          elif [ -f "release.keystore.base64" ]; then
+            echo "Using permanent project release keystore from release.keystore.base64..."
+            base64 --decode release.keystore.base64 > "$KEYSTORE_FILE"
           else
-            echo "No custom keystore secret provided. Creating temporary signing keystore for Release build..."
+            echo "Generating fallback keystore..."
             keytool -genkeypair -v \
               -keystore "$KEYSTORE_FILE" \
               -alias upload \
@@ -61,7 +64,7 @@ jobs:
               -validity 10000 \
               -storepass android \
               -keypass android \
-              -dname "CN=ILIA Notes, OU=Mobile, O=ILIA, L=Tehran, C=IR"
+              -dname "CN=ILIA Notes, OU=Mobile, O=ILIA SOFTWARE, L=Tehran, C=IR"
           fi
 
           # Also copy keystore into app folder for subproject safety
